@@ -5,6 +5,7 @@ from langchain_community.vectorstores import Chroma
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 
+import streamlit as st
 
 def rag_chain():
     model = ChatOllama(model="llama3")
@@ -44,6 +45,22 @@ def ask(query: str):
     # print results
     print(result["answer"])
     for doc in result["context"]:
-        print("Source: ", doc.metadata["source"])
+        print("Source: ", doc)
 
-ask("اعضای هیپت علمی کیا هستند؟")
+    return result["answer"]
+
+
+st.set_page_config(page_title="UniChatbot - NLP Final Proj 1403")
+st.title("💬 UniChatbot")
+st.caption("🚀 NLP Final Proj 1403")
+
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [{"role": "assistant", "content": "How can I help you?"}]
+
+if prompt := st.chat_input():
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.chat_message("user").write(prompt)
+    response = ask(prompt)
+    msg = response
+    st.session_state.messages.append({"role": "assistant", "content": msg})
+    st.chat_message("assistant").write(msg)
